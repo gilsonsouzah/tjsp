@@ -32,7 +32,7 @@ autenticar <- function(login = NULL, password = NULL) {
 
   # Initial access
   base <- Sys.getenv("ESAJENDPOINT")
-  httr::GET(stringr::str_c(base, "/esaj/portal.do?servico=740000"), httr::config(ssl_verifypeer = FALSE))
+  httr::GET(stringr::str_c(base, "/esaj/portal.do?servico=190090"), httr::config(ssl_verifypeer = FALSE))
 
   # Get login page file
   f_login <- stringr::str_c(
