@@ -8,7 +8,7 @@
 #'
 tjsp_baixar_acordaos_cjsg <- function(cdacordao, diretorio = "."){
 
-  url1 <- "https://esaj.tjsp.jus.br/cjsg/consultaCompleta.do?gateway=true"
+  url1 <- stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cjsg/consultaCompleta.do?gateway=true")
   r1 <- httr::GET(url1)
 
   pb <- progress::progress_bar$new(total = length(cdacordao))
@@ -18,7 +18,7 @@ tjsp_baixar_acordaos_cjsg <- function(cdacordao, diretorio = "."){
     pb$tick()
 
      Sys.sleep(1)
-    url <- paste0("https://esaj.tjsp.jus.br/cjsg/getArquivo.do?cdAcordao=",.x,"&cdForo=0")
+    url <- paste0(stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cjsg/getArquivo.do?cdAcordao="),.x,"&cdForo=0")
 
     arquivo <-  file.path(diretorio,paste0("cdacordao_",.x,".pdf"))
 

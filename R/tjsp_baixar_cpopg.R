@@ -13,7 +13,7 @@ tjsp_baixar_cpopg <- function (processos = NULL, diretorio = ".")
     stringr::str_pad(width = 20, "left", "0") %>%
     pontuar_cnj()
 
-  uri1 <- "https://esaj.tjsp.jus.br/cpopg/search.do?gateway=true"
+  uri1 <- stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cpopg/search.do?gateway=true")
 
   pb <- progress::progress_bar$new(total = length(processos))
 
@@ -35,7 +35,7 @@ tjsp_baixar_cpopg <- function (processos = NULL, diretorio = ".")
 
     if (xml2::xml_find_first(conteudo1, "boolean(//div[@id='listagemDeProcessos'])")) {
       conteudo1 <- xml2::xml_find_all(conteudo1, "//a[@class='linkProcesso']") %>%
-        xml2::xml_attr("href") %>% xml2::url_absolute("https://esaj.tjsp.jus.br") %>%
+        xml2::xml_attr("href") %>% xml2::url_absolute(Sys.getenv("ESAJENDPOINT")) %>%
         purrr::map(~httr::RETRY("GET", .x, httr::timeout(2)) %>%
                      httr::content())
     }

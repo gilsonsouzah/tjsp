@@ -36,7 +36,7 @@ tjsp_ler_tabela_docs <- function(arquivos = NULL, diretorio = "."){
       dplyr::mutate(pagina_inicial = stringr::str_extract(paginas,"\\d+"),
                     pagina_final = stringr::str_extract(paginas,"\\d+$"),
                     processo = processo,
-                    url_doc = paste0("https://esaj.tjsp.jus.br/pastadigital/getPDF.do?",url_doc)) %>%
+                    url_doc = paste0(stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/pastadigital/getPDF.do?"),url_doc)) %>%
       dplyr::select(processo, doc_id,doc_name,paginas,pagina_inicial, pagina_final, url_doc)
 
 

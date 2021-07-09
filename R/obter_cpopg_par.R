@@ -35,9 +35,9 @@ obter_cpopg_par <- function(oab = NULL, parte = NULL) {
 
   httr::set_config(httr::config(ssl_verifypeer = FALSE))
 
-  url1<-"https://esaj.tjsp.jus.br/cpopg/search.do?"
+  url1<- stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cpopg/search.do?")
 
-  url2<- "https://esaj.tjsp.jus.br/cpopg/trocarPagina.do?"
+  url2<- stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cpopg/trocarPagina.do?")
 
   query1 <-
     list(

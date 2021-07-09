@@ -82,10 +82,11 @@ tjsp_baixar_cjsg <-
         tipoDecisaoSelecionados = tipo,
         dados.ordenacao = "dtPublicacao"
       )
+    
 
     a <-
       httr::POST(
-        "https://esaj.tjsp.jus.br/cjsg/resultadoCompleta.do",
+        stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cjsg/resultadoCompleta.do"),
         encode = "form",
         body = body,
         httr::accept("text/html; charset=latin1;")
@@ -130,7 +131,7 @@ tjsp_baixar_cjsg <-
       Sys.sleep(1)
         httr::GET(
           paste0(
-            "https://esaj.tjsp.jus.br/cjsg/trocaDePagina.do?tipoDeDecisao=A&pagina=",
+            stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cjsg/trocaDePagina.do?tipoDeDecisao=A&pagina="),
             .x
           ),
           httr::set_cookies(unlist(a$cookies)),
@@ -149,7 +150,7 @@ tjsp_baixar_cjsg <-
 
         httr::GET(
           paste0(
-            "https://esaj.tjsp.jus.br/cjsg/trocaDePagina.do?tipoDeDecisao=D&pagina=",
+            stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cjsg/trocaDePagina.do?tipoDeDecisao=D&pagina="),
             .x
           ),
           httr::set_cookies(unlist(a$cookies)),

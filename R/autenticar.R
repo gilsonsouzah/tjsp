@@ -6,38 +6,39 @@
 #' @export
 #'
 #' @details Você pode informar as credenciais nos argumentos ou
-#'      criar variáveis de ambiente: "ESAJLOGINADV" e "ESAJPASSWORDADV", ou
+#'      criar variáveis de ambiente: "LOGINADV" e "PASSWORDADV", ou
 #'      chamar a função e aguardar o prompt para informar
 #'      login e password
-autenticar <- function(base = NULL, login = NULL, password = NULL) {
+autenticar <- function(login = NULL, password = NULL) {
 
   # Check if isn't already logged in
-  if (check_login(base)) {
+  if (check_login()) {
     return(TRUE)
   }
 
   # Prompt for information if necessary
-  if (is.null(base) || is.null(login) || is.null(password)) {
+  if (is.null(login) || is.null(password)) {
 
-    base <- Sys.getenv("ESAJENDPOINT")
-    login <- Sys.getenv("ESAJLOGINADV")
-    password <- Sys.getenv("ESAJPASSWORDADV")
+    login <- Sys.getenv("LOGINADV")
+    password <- Sys.getenv("PASSWORDADV")
 
-    if (base == "" || login =="" || password == "") {
-      base <- as.character(getPass::getPass(msg = "Enter E-SAJ endpoint: "))
-      login <- as.character(getPass::getPass(msg = "Enter your login: "))
-      password <- as.character(getPass::getPass(msg = "Enter your password: "))
+    if ( login =="" || password == "") {
+
+    login <- as.character(getPass::getPass(msg = "Enter your login: "))
+    password <- as.character(getPass::getPass(msg = "Enter your password: "))
     }
-  }
+
+    }
 
   # Initial access
-  httr::GET(stringr::str_c(base, "esaj/portal.do?servico=740000"), httr::config(ssl_verifypeer = FALSE))
+  base <- Sys.getenv("ESAJENDPOINT")
+  httr::GET(stringr::str_c(base, "/esaj/portal.do?servico=740000"), httr::config(ssl_verifypeer = FALSE))
 
   # Get login page file
   f_login <- stringr::str_c(
-    base, "sajcas/login?service=",
+    base, "/sajcas/login?service=",
     utils::URLencode(
-      stringr::str_c(base, "esaj/j_spring_cas_security_check"),
+      stringr::str_c(base, "/esaj/j_spring_cas_security_check"),
       reserved = TRUE
     )
   ) %>%
@@ -71,16 +72,16 @@ autenticar <- function(base = NULL, login = NULL, password = NULL) {
 
   # Try to login
  stringr::str_c(
-    base, "sajcas/login?service=",
+    base, "/sajcas/login?service=",
     utils::URLencode(
-      stringr::str_c(base, "esaj/j_spring_cas_security_check"),
+      stringr::str_c(base, "/esaj/j_spring_cas_security_check"),
       reserved = TRUE
     )
   ) %>%
     httr::POST(body = query_post, httr::config(ssl_verifypeer = FALSE), encode = "form")
 
   # Message
-  flag <- check_login(base)
+  flag <- check_login()
   if (flag) {
     message("You're logged in")
   }
@@ -91,19 +92,9 @@ autenticar <- function(base = NULL, login = NULL, password = NULL) {
   return(flag)
 }
 
-check_login <- function(base = NULL) {
-  if (is.null(base)) {
-
-    base <- Sys.getenv("ESAJENDPOINT")
-
-    if (base == "") {
-      base <- as.character(getPass::getPass(msg = "Enter E-SAJ endpoint: "))
-    }
-  }
-
-
-  base %>%
-    stringr::str_c("sajcas/verificarLogin.js") %>%
+check_login <- function() {
+  Sys.getenv("ESAJENDPOINT") %>%
+    stringr::str_c("/sajcas/verificarLogin.js") %>%
     httr::GET(httr::config(ssl_verifypeer = FALSE)) %>%
     httr::content("text") %>%
     stringr::str_detect("true")

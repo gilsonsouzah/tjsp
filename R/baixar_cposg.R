@@ -15,7 +15,7 @@ baixar_cposg <- function(processos = NULL,
     stringr::str_pad(width = 20, "left", "0") %>%
     pontuar_cnj()
 
-  uri1 <- "https://esaj.tjsp.jus.br/cposg/search.do?"
+  uri1 <- stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cposg/search.do?")
 
   pb <- progress::progress_bar$new(total = length(processos))
 
@@ -23,7 +23,7 @@ baixar_cposg <- function(processos = NULL,
 
     pb$tick()
 
-  r<-  httr::GET("https://esaj.tjsp.jus.br/cposg/open.do?gateway=true")
+  r<-  httr::GET(stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cposg/open.do?gateway=true"))
 
      p <- .x
 
@@ -48,7 +48,7 @@ baixar_cposg <- function(processos = NULL,
     if (xml2::xml_find_first(conteudo1, "boolean(//div[@id='listagemDeProcessos'])")) {
       conteudo1 <- xml2::xml_find_all(conteudo1, "//a[@class='linkProcesso']") %>%
         xml2::xml_attr("href") %>%
-        xml2::url_absolute("https://esaj.tjsp.jus.br") %>%
+        xml2::url_absolute(Sys.getenv("ESAJENDPOINT")) %>%
         purrr::map(~ httr::RETRY("GET", .x, httr::timeout(2)) %>%
           httr::content())
     } else {

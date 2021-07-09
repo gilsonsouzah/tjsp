@@ -16,7 +16,7 @@ tjsp_baixar_acordaos_cposg2 <- function(processos = NULL,
     stringr::str_pad(width = 20, "left", "0") %>%
     abjutils::build_id()
 
-  uri1 <- "https://esaj.tjsp.jus.br/cposg/search.do?"
+  uri1 <- stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cposg/search.do?")
 
   pb <- progress::progress_bar$new(total = length(processos))
 
@@ -24,7 +24,7 @@ tjsp_baixar_acordaos_cposg2 <- function(processos = NULL,
 
     pb$tick()
 
-    httr::GET("https://esaj.tjsp.jus.br/cposg/open.do?gateway=true")
+    httr::GET(stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cposg/open.do?gateway=true"))
 
     p <- .x
 
@@ -52,7 +52,7 @@ tjsp_baixar_acordaos_cposg2 <- function(processos = NULL,
     if (xml2::xml_find_first(conteudo1, "boolean(//div[@id='listagemDeProcessos'])")) {
       conteudo1 <- xml2::xml_find_all(conteudo1, "//a[@class='linkProcesso']") %>%
         xml2::xml_attr("href") %>%
-        xml2::url_absolute("https://esaj.tjsp.jus.br") %>%
+        xml2::url_absolute(Sys.getenv("ESAJENDPOINT")) %>%
         purrr::map(~ httr::RETRY("GET", .x, httr::timeout(2)) %>%
                      httr::content())
     } else {
@@ -92,7 +92,7 @@ tjsp_baixar_acordaos_cposg2 <- function(processos = NULL,
           as.character()
 
         uri2 <- purrr::map_chr(doc_num, ~ {
-          uri_parseada <- httr::parse_url("https://esaj.tjsp.jus.br/cposg/verificarAcessoMovimentacao.do?")
+          uri_parseada <- httr::parse_url(stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cposg/verificarAcessoMovimentacao.do?"))
           uri_parseada$query <- list(
             cdDocumento = .x,
             origemRecurso = "M", cdProcesso = cdProcesso,
@@ -109,7 +109,7 @@ tjsp_baixar_acordaos_cposg2 <- function(processos = NULL,
             httr::RETRY("GET", ., httr::timeout(2), quiet = TRUE) %>%
             httr::content("text") %>%
             stringr::str_extract("nuSeq.+?(?=.,)") %>%
-            paste0("https://esaj.tjsp.jus.br/pastadigital/getPDF.do?", .)
+            paste0(stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/pastadigital/getPDF.do?"), .)
         })
 
         Sys.sleep(1)
