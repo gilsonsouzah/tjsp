@@ -6,32 +6,31 @@
 #' @export
 #'
 #' @details Você pode informar as credenciais nos argumentos ou
-#'      criar variáveis de ambiente: "LOGINADV" e "PASSWORDADV", ou
+#'      criar variáveis de ambiente: "ESAJLOGINADV" e "ESAJPASSWORDADV", ou
 #'      chamar a função e aguardar o prompt para informar
 #'      login e password
-autenticar <- function(login = NULL, password = NULL) {
+autenticar <- function(base = NULL, login = NULL, password = NULL) {
 
   # Check if isn't already logged in
-  if (check_login()) {
+  if (check_login(base)) {
     return(TRUE)
   }
 
   # Prompt for information if necessary
-  if (is.null(login) || is.null(password)) {
+  if (is.null(base) || is.null(login) || is.null(password)) {
 
-    login <- Sys.getenv("LOGINADV")
-    password <- Sys.getenv("PASSWORDADV")
+    base <- Sys.getenv("ESAJENDPOINT")
+    login <- Sys.getenv("ESAJLOGINADV")
+    password <- Sys.getenv("ESAJPASSWORDADV")
 
-    if ( login =="" || password == "") {
-
-    login <- as.character(getPass::getPass(msg = "Enter your login: "))
-    password <- as.character(getPass::getPass(msg = "Enter your password: "))
+    if (base == "" || login =="" || password == "") {
+      base <- as.character(getPass::getPass(msg = "Enter E-SAJ endpoint: "))
+      login <- as.character(getPass::getPass(msg = "Enter your login: "))
+      password <- as.character(getPass::getPass(msg = "Enter your password: "))
     }
-
-    }
+  }
 
   # Initial access
-  base <- "https://esaj.tjsp.jus.br/"
   httr::GET(stringr::str_c(base, "esaj/portal.do?servico=740000"), httr::config(ssl_verifypeer = FALSE))
 
   # Get login page file
@@ -81,7 +80,7 @@ autenticar <- function(login = NULL, password = NULL) {
     httr::POST(body = query_post, httr::config(ssl_verifypeer = FALSE), encode = "form")
 
   # Message
-  flag <- check_login()
+  flag <- check_login(base)
   if (flag) {
     message("You're logged in")
   }
@@ -92,8 +91,18 @@ autenticar <- function(login = NULL, password = NULL) {
   return(flag)
 }
 
-check_login <- function() {
-  "https://esaj.tjsp.jus.br/" %>%
+check_login <- function(base = NULL) {
+  if (is.null(base)) {
+
+    base <- Sys.getenv("ESAJENDPOINT")
+
+    if (base == "") {
+      base <- as.character(getPass::getPass(msg = "Enter E-SAJ endpoint: "))
+    }
+  }
+
+
+  base %>%
     stringr::str_c("sajcas/verificarLogin.js") %>%
     httr::GET(httr::config(ssl_verifypeer = FALSE)) %>%
     httr::content("text") %>%
