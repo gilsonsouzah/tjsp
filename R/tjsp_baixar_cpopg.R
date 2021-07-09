@@ -13,7 +13,7 @@ tjsp_baixar_cpopg <- function (processos = NULL, diretorio = ".")
     stringr::str_pad(width = 20, "left", "0") %>%
     pontuar_cnj()
 
-  uri1 <- stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cpopg/search.do?gateway=true")
+  uri1 <- stringr::str_c(Sys.getenv("ESAJENDPOINT"), "/cpopg5/search.do?gateway=true")
 
   pb <- progress::progress_bar$new(total = length(processos))
 
